@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview Room</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        window.INTERVIEW_TOKEN = {{ token | tojson }};
+        window.CANDIDATE_NAME = {{ name | tojson }};
+        window.INTERVIEW_TIME = {{ interview_time | tojson }};
+        window.INTERVIEW_START_ISO = {{ interview_start_iso | tojson }};
+        window.IS_WAITING = {{ is_waiting | tojson }};
+        window.SECONDS_UNTIL_START = {{ seconds_until_start | tojson }};
+        window.ENTRY_MODE = {{ entry_mode | default('compat') | tojson }};
+    </script>
+</head>
+<body>
+    {% if show_waiting %}
+    <div class="page-shell waiting-shell" id="waitingShell">
+        <header class="dashboard-header">
+            <div>
+                <div class="eyebrow">Interview Waiting Room</div>
+                <h1>Welcome, {{ name }}</h1>
+                <p>Your interview is scheduled for {{ interview_time }}.</p>
+            </div>
+            <div class="header-actions">
+                <a class="ghost-link" href="/">Exit</a>
+            </div>
+        </header>
+
+        <section class="waiting-banner glass-card">
+            <div class="waiting-copy">
+                <h2 id="waitingTitle">{% if is_waiting %}You are early for the interview{% else %}You can enter the interview now{% endif %}</h2>
+                <p id="waitingMessage">
+                    {% if is_waiting %}
+                        Please stay on this page. You can run the System Compatibility Check while you wait.
+                    {% else %}
+                        You can enter the interview now or run the System Compatibility Check first.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="countdown-card">
+                <span>Starts in</span>
+                <strong id="countdownText">{{ seconds_until_start }}s</strong>
+            </div>
+        </section>
+
+        <section class="compatibility-grid">
+            <div class="glass-card">
+                <h2>Before You Begin</h2>
+                <p class="muted">Use the compatibility page to test microphone, speaker, webcam, screen sharing, and internet/browser support.</p>
+                <div class="compat-actions waiting-actions">
+                    <a class="button-link" href="{{ url_for('system_check', token=token) }}">Run System Compatibility Check</a>
+                    <a class="button-link secondary-link" id="enterInterviewLink" href="{{ url_for('interview_panel', token=token) }}" {% if is_waiting %}aria-disabled="true" tabindex="-1"{% endif %}>Enter Interview</a>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h2>What happens next</h2>
+                <div class="detail-list">
+                    <ul>
+                        <li>Test the microphone and confirm your voice is picked up.</li>
+                        <li>Test the speaker so you can hear the sample sound.</li>
+                        <li>Check your webcam and screen-sharing permissions.</li>
+                        <li>When the timer reaches zero, enter the interview room.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+    {% endif %}
+
+    {% if show_interview %}
+    <div class="page-shell interview-shell interview-room-shell" id="interviewShell">
+        <header class="dashboard-header">
+            <div>
+                <div class="eyebrow">Candidate Session</div>
+                <h1>Interview with AI - {{ name }}</h1>
+                <p>Scheduled for {{ interview_time }}</p>
+            </div>
+            <div class="header-actions">
+                <a class="ghost-link" href="/">Exit</a>
+            </div>
+        </header>
+
+        {% if not can_start_now %}
+        <div class="warning-banner" id="warningBanner">
+            The interview room is open, but the scheduled start time has not been reached yet. You can review the system check now and start as soon as you're ready.
+        </div>
+        {% else %}
+        <div class="warning-banner" id="warningBanner" hidden></div>
+        {% endif %}
+
+        <div class="interview-room-layout">
+                <div class="camera-rail">
+                    <div class="video-container camera-preview-card">
+                        <video id="webcam" autoplay playsinline muted></video>
+                        <div id="camStatus" class="status-badge status-warn">CAM READY</div>
+                        <div id="micStatus" class="status-badge status-warn" style="top: 3rem;">MIC READY</div>
+                    </div>
+                </div>
+
+            <div class="glass-card chat-box interview-chat">
+                <div class="messages" id="chatMessages">
+                    <div class="message msg-ai">Waiting for you to start the interview...</div>
+                </div>
+                <form class="chat-composer" id="chatComposer">
+                    <textarea
+                        id="chatInput"
+                        placeholder="Type your answer here..."
+                        rows="3"
+                    ></textarea>
+                    <button type="submit" class="composer-send">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="controls interview-controls">
+            <button id="startBtn" style="width:auto; padding:1rem 3rem;">START INTERVIEW</button>
+            <button id="listenBtn" style="display:none; width:auto; background:#10b981;">
+                <i class="fas fa-microphone"></i> SPEAK NOW
+            </button>
+            <button id="endBtn" class="btn-red" style="display:none; width:auto;">END INTERVIEW</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/waiting.js') }}"></script>
+    {% if show_interview %}
+    <script src="{{ url_for('static', filename='js/interview.js') }}"></script>
+    {% endif %}
+</body>
+</html>
