@@ -53,3 +53,6 @@ Flask interview scheduling app with single and bulk interview invites.
   - `Name, email@example.com`
   - `Name <email@example.com>`
   - `email@example.com`
+
+  Author
+  Thahaseen Gulam
