@@ -38,7 +38,7 @@ git clone https://github.com/Thahaseen-Shaik/AI-Interview-Schedular.git
 
 cd your-repo-name
 
-3. Configure Environment Variables
+2. Configure Environment Variables
 
 Create a .env file (or edit .env.example) and set the following:
 
@@ -80,7 +80,7 @@ SMTP_FROM=sender_email
    
 pip install -r requirements.txt
 
-5. Run the Application
+4. Run the Application
    
 python main.py
 
